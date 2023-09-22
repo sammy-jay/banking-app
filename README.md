@@ -1,6 +1,6 @@
 # banking-app
 
-
+## Name - Soneye Tolulope
 
 ## Getting started
 
