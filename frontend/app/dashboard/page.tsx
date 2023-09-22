@@ -17,7 +17,7 @@ import Link from "next/link";
 const DashboardPage = () => {
   return (
     <section className="w-full h-screen">
-      <div className="w-max mx-auto mt-10 flex flex-col justify-center space-y-3">
+      <div className="w-max mx-auto pt-12 flex flex-col justify-center space-y-3">
         <Link
           href="/dashboard"
           className="text-center flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0 mx-auto"
