@@ -27,8 +27,21 @@ export class UserService {
       where: {
         id,
       },
-      include: {
-        account: true,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        role: true,
+        currentHashedRefreshToken: true,
+        account: {
+          select: {
+            id: true,
+            accountNumber: true,
+            balance: true,
+          },
+        },
       },
     });
     if (user) {

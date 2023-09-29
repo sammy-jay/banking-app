@@ -1,5 +1,5 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,8 +13,82 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+const baseUrl =
+  "https://3000-sammyjay-awsfullstackap-ufq5o72d322.ws-eu105.gitpod.io/api/v1";
+
+const getCookie = (name: string) => {
+  const cookies = document.cookie.split("; ");
+  for (const cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.split("=");
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return null;
+};
+
+const waitForCookie = async (cookieName: string) => {
+  return new Promise((resolve) => {
+    const checkCookie = () => {
+      const cookieValue = getCookie(cookieName);
+      if (cookieValue !== null) {
+        resolve(cookieValue);
+      } else {
+        setTimeout(checkCookie, 100); // Check again in 100 milliseconds
+      }
+    };
+    checkCookie();
+  });
+};
 
 const DashboardPage = () => {
+  const [userData, setUserData] = useState();
+  const router = useRouter();
+  const handleLogout = async () => {
+    const url = baseUrl + "/auth/logout";
+    console.log(url);
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    fetch(url, options)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        localStorage.removeItem("user_info");
+        router.push("/", { scroll: false });
+      })
+      .catch((error) => {
+        console.error("Fetch Error:", error);
+      });
+  };
+
+  useEffect(() => {
+    async function getData() {
+      const userInfo = JSON.parse(localStorage.getItem("user-info") || "");
+      console.log(userInfo);
+      const options = {
+        headers: {
+          Authentication: `Bearer ${userInfo.accessToken}`,
+        },
+      };
+      const res = await fetch(baseUrl + "/auth/profile", options);
+
+      if (!res.ok) {
+        // router.push("/auth/login")
+      }
+      const data = await res.json();
+      console.log(data);
+      setUserData(data);
+    }
+    getData();
+  }, [router]);
+
   return (
     <section className="w-full h-screen">
       <div className="w-max mx-auto pt-12 flex flex-col justify-center space-y-3">
@@ -77,7 +151,9 @@ const DashboardPage = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="bg-red-600">Logout</Button>
+                <Button className="bg-red-600" onClick={handleLogout}>
+                  Logout
+                </Button>
               </CardFooter>
             </Card>
           </TabsContent>

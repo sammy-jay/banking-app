@@ -126,4 +126,12 @@ export class TransactionsService {
       return sender;
     });
   }
+
+  async getHistory(user: any) {
+    return this.prismaService.transactionHistory.findMany({
+      where: {
+        accountId: user.account.id,
+      },
+    });
+  }
 }

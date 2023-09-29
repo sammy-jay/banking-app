@@ -5,10 +5,12 @@ import {
   HttpCode,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegistrationDto } from './dto';
+import { Response } from 'express';
 import { JwtGuard } from './guard/jwt.guard';
 import { JwtRefreshGuard } from './guard/jwt-refresh.guard';
 import { LocalGuard } from './guard/local.guard';
@@ -29,32 +31,50 @@ export class AuthController {
   @UseGuards(JwtGuard)
   @Get('profile')
   async profile(@Req() request: RequestUser) {
-    return request.user;
+    return await this.usersService.getById(request.user.id);
   }
 
   @Post('register')
-  async register(@Body() registrationData: RegistrationDto) {
+  async register(
+    @Body() registrationData: RegistrationDto,
+    @Res() response: Response,
+  ) {
     const user = await this.authService.register(registrationData);
-    return user;
+    delete user.password;
+    delete user.currentHashedRefreshToken;
+
+    const access_token = await this.authService.getCookieWithJwtToken(user.id);
+    const refresh_token = await this.authService.getCookieWithJwtRefreshToken(
+      user.id,
+    );
+    await this.usersService.setCurrentRefreshToken(refresh_token, user.id);
+
+    return response.send({
+      access_token,
+      refresh_token,
+      user: { ...user },
+    });
   }
 
   @HttpCode(200)
   @UseGuards(LocalGuard)
   @Post('login')
   @ApiBody({ type: LoginDto })
-  async login(@Req() request: RequestUser) {
-    const user = request.user;
+  async login(@Req() request: RequestUser, @Res() response: Response) {
+    const { user } = request;
     delete user.password;
-    const accessTokenCookie = this.authService.getCookieWithJwtToken(user.id);
-    const { refreshTokenCookie, refreshToken } =
-      await this.authService.getCookieWithJwtRefreshToken(user.id);
-    await this.usersService.setCurrentRefreshToken(refreshToken, user.id);
-    request.res.setHeader('Set-Cookie', [
-      accessTokenCookie,
-      refreshTokenCookie,
-    ]);
+    delete user.currentHashedRefreshToken;
+    const access_token = await this.authService.getCookieWithJwtToken(user.id);
+    const refresh_token = await this.authService.getCookieWithJwtRefreshToken(
+      user.id,
+    );
+    await this.usersService.setCurrentRefreshToken(refresh_token, user.id);
 
-    return user;
+    return response.send({
+      access_token,
+      refresh_token,
+      user: { ...user },
+    });
   }
   @UseGuards(JwtRefreshGuard)
   @Get('refresh')

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import {
   DepositTransactionDto,
@@ -40,5 +40,11 @@ export class TransactionsController {
   ) {
     const user = request.user;
     return this.transactionsService.transfer(transferDto, user);
+  }
+
+  @Get('/history')
+  getHistory(@Req() request: RequestUser) {
+    const user = request.user;
+    return this.transactionsService.getHistory(user);
   }
 }
