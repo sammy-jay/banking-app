@@ -16,8 +16,7 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<LoginInput>();
   const onSubmit: SubmitHandler<LoginInput> = (data: any) => {
-    const url =
-      "https://3000-sammyjay-awsfullstackap-ufq5o72d322.ws-eu105.gitpod.io/api/v1/auth/login";
+    const url = "https://zcash-backend.onrender.com/api/v1/auth/login";
     const options = {
       method: "POST",
       headers: {

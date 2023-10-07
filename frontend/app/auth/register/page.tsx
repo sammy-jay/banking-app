@@ -20,8 +20,7 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm<RegistrationInput>();
   const onSubmit: SubmitHandler<RegistrationInput> = (data: any) => {
-    const url =
-      "https://3000-sammyjay-awsfullstackap-ufq5o72d322.ws-eu105.gitpod.io/api/v1/auth/register";
+    const url = "https://zcash-backend.onrender.com/api/v1/auth/register";
     const options = {
       method: "POST",
       headers: {

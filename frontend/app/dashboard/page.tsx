@@ -74,7 +74,7 @@ const DashboardPage = () => {
       console.log(userInfo);
       const options = {
         headers: {
-          Authentication: `Bearer ${userInfo.accessToken}`,
+          Authorization: `Bearer ${userInfo.accessToken}`,
         },
       };
       const res = await fetch(baseUrl + "/auth/profile", options);
